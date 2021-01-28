@@ -20,7 +20,12 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(title: Text(App.title)),
-        body: Center(child: ClickImage(imageAsset: 'assets/kitten_blog.jpg', width: 100)),
+        body: Center(
+          child: ClickImage(
+            imageAsset: 'assets/kitten_blog.jpg',
+            width: 100,
+          ),
+        ),
       );
 }
 
@@ -30,16 +35,38 @@ class ClickImage extends StatelessWidget {
   const ClickImage({@required this.imageAsset, @required this.width});
 
   @override
-  Widget build(BuildContext context) => GestureDetector(
+  Widget build(BuildContext context) {
+    return Focus(
+      autofocus: true,
+      onKey: (node, event) {
+        print(event.logicalKey);
+        if (event.logicalKey == LogicalKeyboardKey.enter) {
+          Navigator.push<void>(
+            context,
+            MaterialPageRoute(
+              builder: (context) => FullScreenImage(imageAsset: imageAsset),
+            ),
+          );
+        }
+        return true;
+      },
+      child: GestureDetector(
         onTap: () => Navigator.push<void>(
           context,
-          MaterialPageRoute(builder: (context) => FullScreenImage(imageAsset: imageAsset)),
+          MaterialPageRoute(
+            builder: (context) => FullScreenImage(imageAsset: imageAsset),
+          ),
         ),
         child: Hero(
           tag: imageAsset,
-          child: Container(width: width, child: Image.asset(imageAsset)),
+          child: Container(
+            width: width,
+            child: Image.asset(imageAsset),
+          ),
         ),
-      );
+      ),
+    );
+  }
 }
 
 // from https://stackoverflow.com/questions/60846054/how-open-image-in-full-screen-when-we-click-on-any-image-in-list-in-flutter
@@ -50,20 +77,23 @@ class FullScreenImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
         backgroundColor: Colors.black87,
-        body: FocusScope(
+        body: Focus(
           autofocus: true,
-          child: Focus(
-            onKey: (node, event) {
-              print(event.logicalKey);
-              if (event.logicalKey == LogicalKeyboardKey.escape) Navigator.pop(context);
-            },
-            child: GestureDetector(
-              onTap: () => Navigator.pop(context),
-              child: Center(
-                child: Hero(
-                  tag: imageAsset,
-                  child: Image.asset(imageAsset, width: MediaQuery.of(context).size.width, fit: BoxFit.contain),
-                ),
+          onKey: (node, event) {
+            print(event.logicalKey);
+            if (event.logicalKey == LogicalKeyboardKey.escape) {
+              Navigator.pop(context);
+            }
+            return true;
+          },
+          child: GestureDetector(
+            onTap: () => Navigator.pop(context),
+            child: Center(
+              child: Hero(
+                tag: imageAsset,
+                child: Image.asset(imageAsset,
+                    width: MediaQuery.of(context).size.width,
+                    fit: BoxFit.contain),
               ),
             ),
           ),
